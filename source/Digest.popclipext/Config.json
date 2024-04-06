@@ -1,0 +1,30 @@
+{
+  "name": "Digest Notes",
+  "identifier": "tkstorm.popclip.extension.digest-notes",
+  "description": "Save useful notes to your Custom Notion Page!",
+  "popclip version": 3785,
+  "icon": "iconify:mingcute:quill-pen-line",
+  "entitlements": ["network"],
+  "captureHtml": true,
+  "module": "digest.bundle.js.lzfse",
+  "options": [
+    {
+      "identifier": "secrets",
+      "label": "Your Notion integrations Secrets",
+      "type": "string",
+      "description": "Obtain an Secrets from: https://www.notion.so/my-integrations"
+    },
+    {
+      "identifier:": "pageId",
+      "label": "Notion pageId",
+      "type": "string",
+      "description": "Save digest content to this page id"
+    },
+    {
+      "identifier:": "blockId",
+      "label": "Notion first blockId",
+      "type": "string",
+      "description": "Save digest content after this block id: https://developers.notion.com/reference/patch-block-children"
+    }
+  ]
+}
