@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { access } from './access.json'
 import axios from 'axios'
-import { markdownToBlocks } from '@tryfabric/martian'
+import { markdownToBlocks } from "@tryfabric/martian"
 
 // Notion api root
 const notion = axios.create({ baseURL: 'https://api.notion.com/v1/' })
@@ -77,3 +77,4 @@ function timeStamp (): string {
 }
 
 export default { auth, action }
+
