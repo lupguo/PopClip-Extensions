@@ -44,9 +44,9 @@ const conversions = [
     { regex: makeRegex("feet|foot|ft|'"), outputUnit: 'm', factor: mPerFoot },
     { regex: makeRegex('yards?|yds?'), outputUnit: 'm', factor: mPerYard },
     { regex: makeRegex('miles?|mi'), outputUnit: 'km', factor: kmPerMile },
-    { regex: makeRegex('centimetres?|centimeters?|cm'), outputUnit: '"', factor: 1 / cmPerInch, space: 0 },
-    { regex: makeRegex('kilometres?|kilometers?|km?'), outputUnit: 'miles', factor: 1 / kmPerMile, space: 1 },
-    { regex: makeRegex('metres?|meters?|m'), outputUnit: "'", factor: 1 / mPerFoot, space: 0 },
+    { regex: makeRegex('centimetres?|centimeters?|cm'), outputUnit: '"', factor: 1 / cmPerInch, space: 0 }, // inch sign is never spaced
+    { regex: makeRegex('kilometres?|kilometers?|km?'), outputUnit: 'miles', factor: 1 / kmPerMile, space: 1 }, // 'miles' always preceded by space
+    { regex: makeRegex('metres?|meters?|m'), outputUnit: "'", factor: 1 / mPerFoot, space: 0 }, // foot sign is never spaces
     // temperature
     { regex: makeRegex('°?F|(?:degrees? )?fahrenheit'), outputUnit: '°C', factor: 1 },
     { regex: makeRegex('°?C|(?:degrees? )?celsius|(?:degrees? )?centigrade'), outputUnit: '°F', factor: 1 }

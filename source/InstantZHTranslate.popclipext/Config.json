@@ -1,10 +1,10 @@
 {
-  "identifier": "com.popclip.extension.instant-translate",
+  "identifier": "tkstorm.popclip.extension.instant-zh-translate",
   "popclip version": 3844,
-  "name": "Instant Translate",
-  "icon": "iconify:icon-park-outline:english",
+  "name": "Instant ZH Translate",
+  "icon": "iconify:icon-park-outline:chinese",
   "regex": "(?s)^.{1,600}$",
-  "module": "itrans.js",
+  "module": "itrans-zh.js",
   "entitlements": [
     "network"
   ],
