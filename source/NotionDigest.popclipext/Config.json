@@ -1,6 +1,6 @@
 {
-  "name": "Notion Digest Notes",
-  "identifier": "tkstorm.popclip.extension.digest-notes",
+  "name": "Notion Digest",
+  "identifier": "tkstorm.popclip.extension.notion-digest",
   "description": "Save helpful notes to your Custom Notion Page sorted in descending order.",
   "popclip version": 3785,
   "icon": "iconify:mingcute:quill-pen-line",
@@ -18,7 +18,7 @@
       "identifier:": "pageId",
       "label": "Notion pageId",
       "type": "string",
-      "description": "Save digest content to this page id"
+      "description": "Save digest content to this page id, PopClip must have access permission to the page."
     },
     {
       "identifier:": "blockId",

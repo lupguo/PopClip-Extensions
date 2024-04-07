@@ -1,7 +1,6 @@
 import axios from 'axios'
 import {markdownToBlocks} from "@tryfabric/martian";
-import {htmlToMarkdown} from "../../source-contrib/CopyAsMarkdown-TablesTest.popclipext/copy-as-markdown";
-import {tr} from "voca";
+import {Block} from "@tryfabric/martian/build/src/notion";
 
 // our own options
 type DigestOptions = {
@@ -12,16 +11,16 @@ type DigestOptions = {
 
 // Notion Message
 class Message {
-  content: string;
+  input: Input;
   ctx: Context;
 
-  constructor(content: string, ctx: Context) {
-    this.content = content;
+  constructor(input: Input, ctx: Context) {
+    this.input = input;
     this.ctx = ctx;
   }
 
   getMessageMarkdown(): string {
-    return `**Content:** ${this.content}
+    return `**Content:** ${replaceLines(this.input.text, ";;")}
       **Refer:** ${getReference(this.ctx)}
       **Web:** ${getWebsite(this.ctx)}
       **LogTime:** ${formatCurrentDateTime()}
@@ -36,7 +35,7 @@ const notion = axios.create({baseURL: 'https://api.notion.com/v1/'})
 // digest is an action save awesome info from website or app to your Notion Page
 const digest: ActionFunction<DigestOptions> = (input, options, context) => {
   // format input data
-  const msg = new Message(input.matchedText, context)
+  const msg = new Message(input, context)
   // popclip.showText("markdown: " + msg.getMessageMarkdown())
 
   // async send to Notion
@@ -45,10 +44,7 @@ const digest: ActionFunction<DigestOptions> = (input, options, context) => {
 
   // send json data
   const pageId = options.pageId
-  const blocks = markdownToBlocks(
-      msg.getMessageMarkdown(),
-      {allowUnsupported: true, strictImageUrls: true}
-  )
+  const blocks = markdownToBlocks(msg.getMessageMarkdown())
 
   // http request
   notion.patch(`blocks/${pageId}/children`, {
@@ -61,6 +57,22 @@ const digest: ActionFunction<DigestOptions> = (input, options, context) => {
   });
 
 };
+
+// 将换行符替换层指定字符串
+function replaceLines(text, replacement) {
+  // 替换重复的\n
+  text = text.replace(/\n+/g, '\n')
+
+  // 找到第二个换行符的位置
+  const secLineIdx = text.indexOf('\n', text.indexOf('\n') + 1);
+
+  if (secLineIdx !== -1) {
+    // 从第二个换行符开始，用指定的字符串替换所有换行符
+    return text.slice(0, secLineIdx) + text.slice(secLineIdx).replace(/\n/g, replacement);
+  }
+
+  return text;
+}
 
 // a markdown fragment to represent the clip's source
 function getReference(ctx: Context): string {
@@ -103,8 +115,6 @@ function formatCurrentDateTime(): string {
 }
 
 export const action: Action<DigestOptions> = {
-  title: "Luping's Remark",
-  icon: "iconify:mingcute:quill-pen-line'",
+  title: "Save Digest To Notion",
   code: digest
 }
-
