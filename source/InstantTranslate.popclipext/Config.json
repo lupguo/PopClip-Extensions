@@ -2,8 +2,8 @@
   "identifier": "com.popclip.extension.instant-translate",
   "popclip version": 3844,
   "name": "Instant Translate",
-  "icon": "itrans.png",
-  "regex": "(?s)^.{1,200}$",
+  "icon": "iconify:icon-park-outline:english",
+  "regex": "(?s)^.{1,600}$",
   "module": "itrans.js",
   "entitlements": [
     "network"

@@ -20,7 +20,7 @@ class Message {
   }
 
   getMessageMarkdown(): string {
-    return `**Content:** ${replaceLines(this.input.text, ";;")}
+    return `**Content:** ${replaceNewLine(this.input.text, " ")}
       **Refer:** ${getReference(this.ctx)}
       **Web:** ${getWebsite(this.ctx)}
       **LogTime:** ${formatCurrentDateTime()}
@@ -32,26 +32,20 @@ class Message {
 // Notion api root
 const notion = axios.create({baseURL: 'https://api.notion.com/v1/'})
 
-// digest is an action save awesome info from website or app to your Notion Page
-const digest: ActionFunction<DigestOptions> = (input, options, context) => {
-  // format input data
+// digest is an action save info from website or app to Notion Page
+const digest: ActionFunction<DigestOptions> = async (input, options, context) => {
+  // notion's block data
   const msg = new Message(input, context)
-  // popclip.showText("markdown: " + msg.getMessageMarkdown())
-
-  // async send to Notion
-  notion.defaults.headers.common.Authorization = `Bearer ${options.secrets}`
-  notion.defaults.headers.common['Notion-Version'] = '2022-06-28'
-
-  // send json data
-  const pageId = options.pageId
   const blocks = markdownToBlocks(msg.getMessageMarkdown())
 
   // http request
-  notion.patch(`blocks/${pageId}/children`, {
+  notion.defaults.headers.common.Authorization = `Bearer ${options.secrets}`
+  notion.defaults.headers.common['Notion-Version'] = '2022-06-28'
+  await notion.patch(`blocks/${options.pageId}/children`, {
     children: blocks,
     after: options.blockId
   }).then((data) => {
-    popclip.showText("axios rsp:" + JSON.stringify(data));
+    popclip.showSuccess()
   }).catch((error) => {
     popclip.showText("axios err:" + JSON.stringify(error));
   });
@@ -59,16 +53,13 @@ const digest: ActionFunction<DigestOptions> = (input, options, context) => {
 };
 
 // 将换行符替换层指定字符串
-function replaceLines(text, replacement) {
-  // 替换重复的\n
+function replaceNewLine(text, replacement) {
   text = text.replace(/\n+/g, '\n')
-
-  // 找到第二个换行符的位置
-  const secLineIdx = text.indexOf('\n', text.indexOf('\n') + 1);
-
-  if (secLineIdx !== -1) {
+  const secondIdx = text.indexOf('\n', text.indexOf('\n') + 1);
+  if (secondIdx !== -1) {
     // 从第二个换行符开始，用指定的字符串替换所有换行符
-    return text.slice(0, secLineIdx) + text.slice(secLineIdx).replace(/\n/g, replacement);
+    return text.slice(0, secondIdx) +
+        text.slice(secondIdx).replace(/\n/g, replacement);
   }
 
   return text;
