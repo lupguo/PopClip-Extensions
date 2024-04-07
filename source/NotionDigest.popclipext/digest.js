@@ -5,12 +5,12 @@ const axios_1 = require("axios");
 const martian_1 = require("@tryfabric/martian");
 // Notion Message
 class Message {
-    constructor(content, ctx) {
-        this.content = content;
+    constructor(input, ctx) {
+        this.input = input;
         this.ctx = ctx;
     }
     getMessageMarkdown() {
-        return `**Content:** ${this.content}
+        return `**Content:** ${replaceLines(this.input.text, ";;")}
       **Refer:** ${getReference(this.ctx)}
       **Web:** ${getWebsite(this.ctx)}
       **LogTime:** ${formatCurrentDateTime()}
@@ -23,14 +23,14 @@ const notion = axios_1.default.create({ baseURL: 'https://api.notion.com/v1/' })
 // digest is an action save awesome info from website or app to your Notion Page
 const digest = (input, options, context) => {
     // format input data
-    const msg = new Message(input.matchedText, context);
+    const msg = new Message(input, context);
     // popclip.showText("markdown: " + msg.getMessageMarkdown())
     // async send to Notion
     notion.defaults.headers.common.Authorization = `Bearer ${options.secrets}`;
     notion.defaults.headers.common['Notion-Version'] = '2022-06-28';
     // send json data
     const pageId = options.pageId;
-    const blocks = (0, martian_1.markdownToBlocks)(msg.getMessageMarkdown(), { allowUnsupported: true, strictImageUrls: true });
+    const blocks = (0, martian_1.markdownToBlocks)(msg.getMessageMarkdown());
     // http request
     notion.patch(`blocks/${pageId}/children`, {
         children: blocks,
@@ -41,6 +41,18 @@ const digest = (input, options, context) => {
         popclip.showText("axios err:" + JSON.stringify(error));
     });
 };
+// 将换行符替换层指定字符串
+function replaceLines(text, replacement) {
+    // 替换重复的\n
+    text = text.replace(/\n+/g, '\n');
+    // 找到第二个换行符的位置
+    const secLineIdx = text.indexOf('\n', text.indexOf('\n') + 1);
+    if (secLineIdx !== -1) {
+        // 从第二个换行符开始，用指定的字符串替换所有换行符
+        return text.slice(0, secLineIdx) + text.slice(secLineIdx).replace(/\n/g, replacement);
+    }
+    return text;
+}
 // a markdown fragment to represent the clip's source
 function getReference(ctx) {
     let ref = ctx.appName.length > 0 ? ctx.appName : 'unknown source';
@@ -76,7 +88,6 @@ function formatCurrentDateTime() {
     return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 }
 exports.action = {
-    title: "Luping's Remark",
-    icon: "iconify:mingcute:quill-pen-line'",
+    title: "Save Digest To Notion",
     code: digest
 };
