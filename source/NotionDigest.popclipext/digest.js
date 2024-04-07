@@ -11,8 +11,8 @@ class Message {
     }
     getMessageMarkdown() {
         return `**Content:** ${this.content}
-      **Markdown:** ${popclip.input.markdown}
       **Refer:** ${getReference(this.ctx)}
+      **Web:** ${getWebsite(this.ctx)}
       **LogTime:** ${formatCurrentDateTime()}
       ---
     `;
@@ -23,14 +23,14 @@ const notion = axios_1.default.create({ baseURL: 'https://api.notion.com/v1/' })
 // digest is an action save awesome info from website or app to your Notion Page
 const digest = (input, options, context) => {
     // format input data
-    const msg = new Message(input.text, context);
+    const msg = new Message(input.matchedText, context);
     // popclip.showText("markdown: " + msg.getMessageMarkdown())
     // async send to Notion
     notion.defaults.headers.common.Authorization = `Bearer ${options.secrets}`;
     notion.defaults.headers.common['Notion-Version'] = '2022-06-28';
     // send json data
     const pageId = options.pageId;
-    const blocks = (0, martian_1.markdownToBlocks)(msg.getMessageMarkdown());
+    const blocks = (0, martian_1.markdownToBlocks)(msg.getMessageMarkdown(), { allowUnsupported: true, strictImageUrls: true });
     // http request
     notion.patch(`blocks/${pageId}/children`, {
         children: blocks,
@@ -42,12 +42,27 @@ const digest = (input, options, context) => {
     });
 };
 // a markdown fragment to represent the clip's source
-function getReference(context) {
-    let ref = context.appName.length > 0 ? context.appName : 'unknown source';
-    if (context.browserUrl.length > 0) {
-        ref = `[${context.browserTitle.length > 0 ? context.browserTitle : context.browserUrl}](${context.browserUrl})`;
+function getReference(ctx) {
+    let ref = ctx.appName.length > 0 ? ctx.appName : 'unknown source';
+    if (ctx.browserUrl.length > 0) {
+        ref = `[${ctx.browserTitle.length > 0 ? ctx.browserTitle : ctx.browserUrl}](${ctx.browserUrl})`;
     }
     return ref;
+}
+function getWebsite(ctx) {
+    // default get app name as website
+    let website = ctx.appName.length > 0 ? ctx.appName : 'unknown website';
+    // if browser url, return website
+    if (ctx.browserUrl.length > 0) {
+        try {
+            const urlObj = new URL(ctx.browserUrl);
+            website = `${urlObj.protocol}//${urlObj.hostname}`;
+        }
+        catch (err) {
+            return 'invalid website url';
+        }
+    }
+    return website;
 }
 // current date & time in current locale's format
 function formatCurrentDateTime() {

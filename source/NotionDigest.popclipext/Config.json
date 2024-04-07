@@ -1,7 +1,7 @@
 {
-  "name": "Digest Notes",
+  "name": "Notion Digest Notes",
   "identifier": "tkstorm.popclip.extension.digest-notes",
-  "description": "Save useful notes to your Custom Notion Page!",
+  "description": "Save helpful notes to your Custom Notion Page sorted in descending order.",
   "popclip version": 3785,
   "icon": "iconify:mingcute:quill-pen-line",
   "entitlements": ["network"],
@@ -12,7 +12,7 @@
       "identifier": "secrets",
       "label": "Your Notion integrations Secrets",
       "type": "string",
-      "description": "Obtain an Secrets from: https://www.notion.so/my-integrations"
+      "description": "Obtain a Secrets from: https://www.notion.so/my-integrations"
     },
     {
       "identifier:": "pageId",

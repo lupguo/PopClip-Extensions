@@ -1,5 +1,7 @@
 import axios from 'axios'
 import {markdownToBlocks} from "@tryfabric/martian";
+import {htmlToMarkdown} from "../../source-contrib/CopyAsMarkdown-TablesTest.popclipext/copy-as-markdown";
+import {tr} from "voca";
 
 // our own options
 type DigestOptions = {
@@ -20,8 +22,8 @@ class Message {
 
   getMessageMarkdown(): string {
     return `**Content:** ${this.content}
-      **Markdown:** ${popclip.input.markdown}
       **Refer:** ${getReference(this.ctx)}
+      **Web:** ${getWebsite(this.ctx)}
       **LogTime:** ${formatCurrentDateTime()}
       ---
     `;
@@ -34,7 +36,7 @@ const notion = axios.create({baseURL: 'https://api.notion.com/v1/'})
 // digest is an action save awesome info from website or app to your Notion Page
 const digest: ActionFunction<DigestOptions> = (input, options, context) => {
   // format input data
-  const msg = new Message(input.text, context)
+  const msg = new Message(input.matchedText, context)
   // popclip.showText("markdown: " + msg.getMessageMarkdown())
 
   // async send to Notion
@@ -45,7 +47,7 @@ const digest: ActionFunction<DigestOptions> = (input, options, context) => {
   const pageId = options.pageId
   const blocks = markdownToBlocks(
       msg.getMessageMarkdown(),
-
+      {allowUnsupported: true, strictImageUrls: true}
   )
 
   // http request
@@ -61,13 +63,30 @@ const digest: ActionFunction<DigestOptions> = (input, options, context) => {
 };
 
 // a markdown fragment to represent the clip's source
-function getReference(context: Context): string {
-  let ref = context.appName.length > 0 ? context.appName : 'unknown source'
-  if (context.browserUrl.length > 0) {
-    ref = `[${context.browserTitle.length > 0 ? context.browserTitle : context.browserUrl}](${context.browserUrl})`
+function getReference(ctx: Context): string {
+  let ref = ctx.appName.length > 0 ? ctx.appName : 'unknown source'
+  if (ctx.browserUrl.length > 0) {
+    ref = `[${ctx.browserTitle.length > 0 ? ctx.browserTitle : ctx.browserUrl}](${ctx.browserUrl})`
   }
 
   return ref
+}
+
+function getWebsite(ctx: Context): string {
+  // default get app name as website
+  let website = ctx.appName.length > 0 ? ctx.appName : 'unknown website'
+
+  // if browser url, return website
+  if (ctx.browserUrl.length > 0) {
+    try {
+      const urlObj = new URL(ctx.browserUrl);
+      website = `${urlObj.protocol}//${urlObj.hostname}`;
+    } catch (err) {
+      return 'invalid website url'
+    }
+  }
+
+  return website
 }
 
 // current date & time in current locale's format
