@@ -10,10 +10,10 @@ class Message {
         this.ctx = ctx;
     }
     getMessageMarkdown() {
-        return `**Content:** ${replaceNewLine(this.input.text, " ")}
-      **Refer:** ${getReference(this.ctx)}
-      **Web:** ${getWebsite(this.ctx)}
-      **LogTime:** ${formatCurrentDateTime()}
+        return `**Content**: ${replaceNewLine(this.input.text, " ")}
+      **Refer**: ${getReference(this.ctx)}
+      **Web**: ${getWebsite(this.ctx)}
+      **LogTime**: ${formatCurrentDateTime()}
       ---
     `;
     }

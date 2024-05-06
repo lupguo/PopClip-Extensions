@@ -1,6 +1,5 @@
 import axios from 'axios'
 import {markdownToBlocks} from "@tryfabric/martian";
-import {Block} from "@tryfabric/martian/build/src/notion";
 
 // our own options
 type DigestOptions = {
@@ -20,10 +19,10 @@ class Message {
   }
 
   getMessageMarkdown(): string {
-    return `**Content:** ${replaceNewLine(this.input.text, " ")}
-      **Refer:** ${getReference(this.ctx)}
-      **Web:** ${getWebsite(this.ctx)}
-      **LogTime:** ${formatCurrentDateTime()}
+    return `**Content**: ${replaceNewLine(this.input.text, " ")}
+      **Refer**: ${getReference(this.ctx)}
+      **Web**: ${getWebsite(this.ctx)}
+      **LogTime**: ${formatCurrentDateTime()}
       ---
     `;
   }
