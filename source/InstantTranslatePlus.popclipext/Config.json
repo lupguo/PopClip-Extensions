@@ -1,0 +1,27 @@
+{
+  "identifier": "com.popclip.extension.translate-plus",
+  "name": "Translate Plus",
+  "icon": "TP",
+  "popclip version": 3844,
+  "regex": "(?s)^.{1,600}$",
+  "module": "itrans.ts",
+  "options": [
+    {
+      "identifier": "firstLang",
+      "label": "first lang(default en)",
+      "type": "string",
+      "default value": "en"
+    },
+    {
+      "identifier": "secondLang",
+      "label": "second lang(default zh-Hans)",
+      "type": "string",
+      "default value": "zh-Hans"
+    }
+  ],
+  "entitlements": [
+    "network"
+  ],
+  "note": "20 Apr 2022: Updated for macOS 12.3.",
+  "description": "Translate the selected word or short phrase instantly within PopClip. Powered by Microsoft Translator."
+}

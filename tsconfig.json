@@ -21,7 +21,8 @@
         // (note es2018 is required for async generators)
         "target": "es2017",
         "lib": [
-            "es2021"
+          "es2021",
+          "dom"
         ],
         // we can specify esnext lib due to polyfills in popclip
         "skipLibCheck": true,
@@ -36,7 +37,7 @@
         "./lib",
         "./extras",
         "./source",
-        "./source-contrib",    
+        "./source-contrib",
         "./scratch"
     ],
     "exclude": ["/Applications/PopClip.app/Contents/Resources/popclip.d.ts"],
