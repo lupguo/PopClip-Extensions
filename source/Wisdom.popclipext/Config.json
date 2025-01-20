@@ -1,0 +1,35 @@
+{
+    "name": "Wisdom Save",
+    "identifier": "tkstorm.popclip.extension.wisdom-save",
+    "description": "Save selected text as wisdom using a remote API.",
+    "popclip version": 3785,
+    "icon": "iconify:solar:hashtag-line-duotone",
+    "entitlements": [
+        "network"
+    ],
+    "captureHtml": true,
+    "module": "wisdom.js",
+    "options": [
+        {
+            "identifier": "host",
+            "type": "string",
+            "label": "API Host",
+            "description": "The host of the wisdom API.",
+            "default": "https://wisdom.archstat.com"
+        },
+        {
+            "identifier": "skey",
+            "type": "string",
+            "label": "API Key",
+            "description": "Your API key for authentication.",
+            "default": ""
+        },
+        {
+            "identifier": "speaker",
+            "type": "string",
+            "label": "Speaker",
+            "description": "The speaker of the selected sentence.",
+            "default": ""
+        }
+    ]
+}
