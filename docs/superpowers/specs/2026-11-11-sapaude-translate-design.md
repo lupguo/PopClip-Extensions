@@ -195,7 +195,7 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 | AI 自定义厂商缺 Base URL 或模型 | 不发请求：“自定义厂商需要填写 Base URL 和模型” |
 | 无 response（网络不通） | “无法连接 <引擎>：<错误>” |
 | 401 / 403 | Google/微软：“<引擎> 拒绝访问，接口可能已变更或被限流”；AI：“API Key 无效或无权限” |
-| 429 | “请求过于频繁，请稍后再试” |
+| 429（Google 被限流时会先 302 到 `google.com/sorry` 再返回 429） | “<引擎> 暂时限制了请求，请稍后再试，或在设置中换一个翻译服务” |
 | 其他 HTTP 状态 | “<引擎> 错误 <status>: <detail>”（AI 的 detail 取 `data.error.message`） |
 | 响应结构不符或译文为空 | “<引擎> 返回了无法解析的结果” |
 
