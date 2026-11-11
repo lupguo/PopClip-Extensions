@@ -142,21 +142,30 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 
 ### ai.ts
 
-厂商预设表（默认模型名在实现时对照各厂商文档核对，集中为代码常量）：
+厂商预设表（集中为代码常量）。默认模型按“费用 > 质量 > 速度”选取，价格为 2026-11-11 官方价格页数据（每 1M tokens，输入 / 输出）：
 
-| aiVendor | 标签 | Base URL | 默认模型 |
-|---|---|---|---|
-| openai | OpenAI | `https://api.openai.com/v1` | gpt-5.6-luna |
-| deepseek | DeepSeek | `https://api.deepseek.com/v1` | deepseek-chat |
-| qwen | 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | qwen-plus |
-| moonshot | Moonshot / Kimi | `https://api.moonshot.cn/v1` | kimi-latest |
-| zhipu | 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | glm-4-flash |
-| openrouter | OpenRouter | `https://openrouter.ai/api/v1` | openai/gpt-5.6-luna |
-| custom | 自定义 | `aiBaseUrl`（去掉末尾 `/`） | 无，`aiModel` 必填 |
+| aiVendor | 标签 | Base URL | 默认模型 | 价格 | extraBody（关闭/压低思考） |
+|---|---|---|---|---|---|
+| openai | OpenAI | `https://api.openai.com/v1` | gpt-6-luna | $0.10 / $0.50 | `{ reasoning_effort: "none" }` |
+| deepseek | DeepSeek | `https://api.deepseek.com/v1` | deepseek-flash | ¥1 / ¥4 闲时，¥2 / ¥8 高峰 | `{ thinking: { type: "disabled" } }` |
+| qwen | 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | qwen3.7-flash | ¥0.2 / ¥0.8（≤32K 输入） | `{ enable_thinking: false }` |
+| zhipu | 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | glm-4.7-flash | 免费 | `{ thinking: { type: "disabled" } }` |
+| openrouter | OpenRouter | `https://openrouter.ai/api/v1` | openai/gpt-6-luna | ≈ $0.05–0.10 / $0.25–0.50 | `{ reasoning: { effort: "none" } }` |
+| custom | 自定义 | `aiBaseUrl`（去掉末尾 `/`） | 无，`aiModel` 必填 | — | 无 |
+
+选型说明：
+
+- 主流模型默认开启思考，翻译不需要推理，思考 token 会增加费用和延迟，因此用 `extraBody` 关闭。
+- 通义不选 `qwen-mt-*` 翻译专用模型：更贵，且需要专用 `translation_options` 参数，不走通用 system prompt。
+- 不预置 Moonshot / Kimi：新用户只能用 K3 系列（最低 kimi-k3.1-pro ¥13 / ¥68），思考无法关闭；需要时用“自定义”，Base URL 填 `https://api.moonshot.cn/v1`。
+
+请求规则：
 
 - 模型：`aiModel.trim()` 非空则用之，否则用厂商默认模型。
+- `extraBody` 仅在使用默认模型（`aiModel` 留空）时合并进请求体；用户自填模型时不带，避免不支持该参数的模型报错。
 - 请求：`POST <baseURL>/chat/completions`，头 `Authorization: Bearer <key>`，体：
   - `model`
+  - `...extraBody`（见上）
   - `messages`：
     - system：`You are a translation engine. Translate the user's text into <to.ai>. Output only the translation, keep the original formatting and line breaks, no explanations.`
     - user：原文
@@ -183,6 +192,7 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 - `npx biome check source/SapaudeTranslate.popclipext` 通过（不改 `biome.json`）。
 - `curl` 冒烟：Google gtx、Edge auth + 微软翻译，确认接口可用、响应结构与本设计一致。
 - PopClip 实机：En / 中 按钮；勾选 日 后出现按钮；三种结果模式及 ⌥ 切换；超长文本提示；AI 由用户用真实 Key 测试一次。
+- 各厂商默认模型 + extraBody 由用户用真实 Key 至少验证一次（确认参数被接受、没有思考输出）。
 - 不引入单测框架（会改动 `package.json`）。
 
 ## 不做
