@@ -27,8 +27,8 @@
 - 还原为 master: 其余全部路径
 
 **Interfaces:**
-- Consumes: 本地 `master` 位于 `449b4465`（= `origin/master` + spec 提交），工作区仅有未跟踪的 `.idea/`
-- Produces: `master` 上的合并提交，父提交为 `449b4465` 和 `origin/feat/wisdom-save-20250120`
+- Consumes: 本地 `master` = `origin/master` + 若干 `docs/superpowers` 文档提交，工作区仅有未跟踪的 `.idea/`
+- Produces: `master` 上的合并提交，父提交为合并前的 master 和 `origin/feat/wisdom-save-20250120`
 
 - [ ] **Step 1: 确认起点**
 
@@ -36,7 +36,8 @@
 git fetch origin
 git switch master
 git status -sb
-git rev-list --count origin/master..master   # 期望: 1（spec 提交）
+git rev-list --count origin/master..master   # 期望: 仅 docs 提交（下一行确认）
+git diff --name-only origin/master master   # 期望: 只有 docs/superpowers/ 下的文件
 git rev-list --count master..origin/master   # 期望: 0
 git rev-parse feat/notion-digest-20240408 origin/feat/notion-digest-20240408  # 期望: 两者均为 8ce95ff6...
 ```
