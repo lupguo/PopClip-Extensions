@@ -108,14 +108,16 @@ interface Language {
 
 ## 数据流（一次点击）
 
+0. 选中文本全为空白时直接返回，不翻译。
 1. **长度检查**：`maxLength` 解析为整数；非数字或空 → 500，>5000 → 5000，<1 → 1。
    `input.text.length` 超限时 `popclip.showText("选中文本 N 字符，超过上限 M（可在设置中调整，最大 5000）")` 并返回。
 2. **翻译**：按 `engine` 调用 `google.translate` / `microsoft.translate` / `ai.translate`。
 3. **异常**：`catch` 后 `popclip.showText(errorMessage(e, engine))` 并返回。
 4. **结果处理**：模式取 `resultMode`；按住 ⌥ 时，预览/复制 → 替换，替换 → 预览。
-   - 预览：`return` 译文，由 `after: "preview-result"` 显示（可点击复制）。
+   - 预览：译文 ≤160 字符时 `return` 译文，由 `after: "preview-result"` 显示（自动复制，点击可粘贴）；
+     更长时（PopClip 预览会截断到 160 字符）改为 `popclip.copyText(译文, { notify: false })` + `popclip.showText(译文, { style: "large" })` 全屏显示。
    - 替换：`popclip.pasteText(译文)`，返回 `undefined`。
-   - 复制：`popclip.copyText(译文)` + `popclip.showSuccess()`，返回 `undefined`。
+   - 复制：`popclip.copyText(译文)`（自带“已复制”提示），返回 `undefined`。
 
 ## 后端
 

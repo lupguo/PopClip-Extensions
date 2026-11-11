@@ -1135,7 +1135,8 @@ Tick 日语 in the settings. A **日** button appears and translates into Japane
 - [ ] **Step 5: Result modes and ⌥**
 
 - Replace, in an editable text field: the selection is replaced by the translation.
-- Copy: the success tick shows and the clipboard holds the translation.
+- Copy: PopClip's "Copied" notification shows and the clipboard holds the translation.
+- Preview of a translation longer than 160 characters (for example, a full paragraph): it shows full-screen in Large Type and is on the clipboard.
 - Preview while holding ⌥: the selection is replaced.
 - Replace while holding ⌥: the translation is previewed.
 
@@ -1145,7 +1146,7 @@ Leave Maximum Text Length at the default 500 and select about 600 characters. Th
 
 - [ ] **Step 7: AI backend**
 
-- With no key: "请在设置中填写 AI API Key".
+- With no key: exactly "请在设置中填写 AI API Key", not "无法连接 AI：…". This confirms that `instanceof SettingsError` works across modules in PopClip.
 - With a real key for at least one preset vendor and Model left blank: a translation comes back quickly, with no reasoning text.
 - With a wrong key: "AI API Key 无效或无权限，请检查设置".
 
