@@ -12,6 +12,7 @@ interface Vendor {
 
 // Default models are chosen for cost first, then quality, then speed.
 // Prices per 1M tokens (input / output), checked 2026-11-11.
+// When changing a default model, update the aiModel description in Config.ts and README.md.
 const vendors: Record<string, Vendor | undefined> = {
   // $0.10 / $0.50
   openai: {

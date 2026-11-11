@@ -16,6 +16,8 @@ import * as microsoft from "./microsoft.ts";
 // the header regex above allows at most this many characters
 const hardMaxLength = 5000;
 const defaultMaxLength = 500;
+// PopClip truncates previews to this many characters
+const previewLimit = 160;
 
 export const options = [
   {
@@ -241,6 +243,9 @@ async function run(
   options: Options,
   to: Language,
 ): Promise<string | undefined> {
+  if (!input.text.trim()) {
+    return;
+  }
   const limit = parseMaxLength(options.maxLength);
   if (input.text.length > limit) {
     popclip.showText(
@@ -266,9 +271,14 @@ async function run(
       return;
     case "copy":
       await popclip.copyText(result);
-      popclip.showSuccess();
       return;
     default:
+      if (result.length > previewLimit) {
+        // too long for the preview: copy it and show it all in Large Type
+        await popclip.copyText(result, { notify: false });
+        popclip.showText(result, { style: "large" });
+        return;
+      }
       // shown by the action's "preview-result" step
       return result;
   }

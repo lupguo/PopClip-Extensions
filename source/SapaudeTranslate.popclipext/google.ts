@@ -10,10 +10,14 @@ export async function translate(text: string, to: Language): Promise<string> {
     `q=${encodeURIComponent(text)}`,
     { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
   );
-  const data: unknown =
-    typeof response.data === "string"
-      ? JSON.parse(response.data)
-      : response.data;
+  let data: unknown = response.data;
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch {
+      throw new BadResponseError();
+    }
+  }
   // the response looks like [[["translated","original",...], ...], ...]
   const segments = Array.isArray(data) ? data[0] : undefined;
   if (!Array.isArray(segments)) {

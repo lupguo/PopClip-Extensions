@@ -23,8 +23,11 @@ interface Session {
 // kept in memory between translations, like OpenAIChat's message history
 let session: Session | undefined;
 
-// thrown when Bing no longer accepts the session's token
-class ExpiredSession extends Error {}
+// thrown when Bing no longer accepts the session's token; shaped like an
+// axios error so a second failure is reported as a 401
+class ExpiredSession extends Error {
+  response = { status: 401 };
+}
 
 async function getSession(): Promise<Session> {
   if (session && Date.now() < session.expires) {
@@ -85,7 +88,11 @@ async function request(text: string, to: Language, s: Session) {
     throw e;
   }
   if (typeof data === "string") {
-    data = JSON.parse(data);
+    try {
+      data = JSON.parse(data);
+    } catch {
+      throw new BadResponseError();
+    }
   }
   // on success the response is [{ translations: [{ text }] }];
   // on failure it is an object such as { statusCode: 400 }
