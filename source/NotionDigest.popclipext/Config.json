@@ -15,13 +15,13 @@
       "description": "Obtain a Secrets from: https://www.notion.so/my-integrations"
     },
     {
-      "identifier:": "pageId",
+      "identifier": "pageId",
       "label": "Notion pageId",
       "type": "string",
       "description": "Save digest content to this page id, PopClip must have access permission to the page."
     },
     {
-      "identifier:": "blockId",
+      "identifier": "blockId",
       "label": "Notion first blockId",
       "type": "string",
       "description": "Save digest content after this block id: https://developers.notion.com/reference/patch-block-children"

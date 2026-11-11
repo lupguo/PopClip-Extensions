@@ -52,7 +52,7 @@ const digest: ActionFunction<DigestOptions> = async (input, options, context) =>
 };
 
 // 将换行符替换层指定字符串
-function replaceNewLine(text, replacement) {
+function replaceNewLine(text: string, replacement: string): string {
   text = text.replace(/\n+/g, '\n')
   const secondIdx = text.indexOf('\n', text.indexOf('\n') + 1);
   if (secondIdx !== -1) {
