@@ -19,8 +19,9 @@ source/SapaudeTranslate.popclipext/
   Config.ts       # 头注释、options、actions、长度检查、结果处理、错误提示
   languages.ts    # 语言表（9 种）与 Language 类型
   google.ts       # Google 免费 gtx 接口
-  microsoft.ts    # 微软 Edge token + Translator v3
+  microsoft.ts    # 微软 Bing 网页翻译（ttranslatev3），含分块
   ai.ts           # 厂商预设表 + OpenAI 兼容 chat/completions
+  errors.ts       # SettingsError / BadResponseError
   README.md
 ```
 
@@ -48,6 +49,7 @@ source/SapaudeTranslate.popclipext/
 ```ts
 interface Language {
   code: string;       // 内部代码，也用于 option 名 lang_<code>
+  label: { en: string; "zh-Hans": string }; // 按钮标题
   icon: string;       // 按钮图标
   google: string;     // Google 语言代码
   microsoft: string;  // 微软语言代码
@@ -135,10 +137,19 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 
 ### microsoft.ts
 
-- Token：`GET https://edge.microsoft.com/translate/auth`，响应为 JWT 纯文本；缓存在模块级变量，8 分钟过期。
-- 翻译：`POST https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=<to.microsoft>`，
-  头 `Authorization: Bearer <token>`，体 `[{ "Text": text }]`；取 `data[0].translations[0].text`。
-- 401：清缓存、重新获取 token，仅重试一次。
+原定的 Edge token 接口 `edge.microsoft.com/translate/auth` 已于 2026-11 下线（404），改用 Bing 网页翻译（2026-11-11 curl 实测可用）：
+
+- 会话：`GET https://www.bing.com/translator`，从 HTML 提取
+  `IG:"<IG>"`、第一个 `data-iid="translator.<n>"`、`params_AbusePreventionHelper = [<key>,"<token>",<ttl毫秒>]`；
+  缓存在模块级变量，`ttl × 0.9` 后过期。提取失败抛 `BadResponseError`。
+- 翻译：`POST https://www.bing.com/ttranslatev3?isVertical=1&IG=<IG>&IID=<iid>`，表单体
+  `fromLang=auto-detect&to=<to.microsoft>&text=<text>&key=<key>&token=<token>`；
+  成功时响应为数组，取 `data[0].translations[0].text`。
+- 两个请求都必须带浏览器 `User-Agent`，否则 401。
+- 单次上限 1000 字符（超出时 HTTP 200 + `{"statusCode":400}`）：`splitText(text, 1000)` 依次按换行、句末标点（`.!?。！？`）、空格、硬切的优先级切块，
+  逐块顺序请求；每块去掉首尾空白再翻译，翻译后把原首尾空白拼回，最后直接拼接。
+- 会话失效（HTTP 401 或响应体 `statusCode: 401`）：清缓存、重新获取会话，仅重试一次。
+- 其他非数组响应体抛 `BadResponseError`。
 
 ### ai.ts
 
@@ -174,6 +185,8 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 
 ## 错误处理
 
+`errors.ts`：`SettingsError`（用户可在设置里修正的问题，消息原样显示）、`BadResponseError`（服务有响应但不是可用译文）。
+
 后端抛异常，`Config.ts` 的 `errorMessage(e, engine)` 转为中文提示（参照 InstantTranslate 的 `errorMessage`）：
 
 | 情况 | 提示 |
@@ -190,10 +203,12 @@ export async function translate(text: string, to: Language, config: AiConfig): P
 
 - `npm run check` 通过（TS 7 strict）。
 - `npx biome check source/SapaudeTranslate.popclipext` 通过（不改 `biome.json`）。
-- `curl` 冒烟：Google gtx、Edge auth + 微软翻译，确认接口可用、响应结构与本设计一致。
+- `curl` 冒烟：Google gtx、Bing 网页翻译，确认接口可用、响应结构与本设计一致。
+- Node 冒烟脚本（放在仓库外的临时目录，`node --experimental-strip-types --test`）直接调用各后端模块与 `splitText`；不提交。
 - PopClip 实机：En / 中 按钮；勾选 日 后出现按钮；三种结果模式及 ⌥ 切换；超长文本提示；AI 由用户用真实 Key 测试一次。
 - 各厂商默认模型 + extraBody 由用户用真实 Key 至少验证一次（确认参数被接受、没有思考输出）。
-- 不引入单测框架（会改动 `package.json`）。
+- 不在仓库内引入单测框架（会改动 `package.json`）。
+- PopClip 内 axios 能否设置 `User-Agent` 需实机确认；若不能，Bing 后端不可用，需回到设计讨论。
 
 ## 不做
 
